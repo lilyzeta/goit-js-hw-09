@@ -3,23 +3,29 @@ const back = document.querySelector("body");
 const start = document.querySelector("[data-start");
 const stop = document.querySelector("[data-stop]");
 
-let timerID = 1;
+let timerID = null;
 
 start.addEventListener("click", startColors);
 stop.addEventListener("click", stopColors);
 
 function startColors() {
-  document.body.style.backgroundColor = getRandomHexColor();
+  back.style.backgroundColor = getRandomHexColor();
   timerID = setInterval(() => {
-    document.body.style.backgroundColor = getRandomHexColor();
+    back.style.backgroundColor = getRandomHexColor();
   }, 1000);
+  start.disabled = true;
+  stop.disabled = false;
+}
+
+function stopColors() {
+  clearInterval(timerID);
+  start.disabled = false;
+  stop.disabled = true;
 }
 
 function getRandomHexColor() {
-  return `#${Math.floor(Math.random() * 16777215)
+  const randomColor = Math.floor(Math.random() * 16777215)
     .toString(16)
-    .padStart(6, 0)}`;
+    .padStart(6, "0");
+  return "#${randomColor}";
 }
-
-
-// How do we make the function stop when we click stop?
