@@ -1,29 +1,108 @@
+/* importing the modules into the javascript files, already installed via npm */
+
 import flatpickr from 'flatpickr';
+import Notiflix from 'notiflix';
 import 'flatpickr/dist/flatpickr.min.css';
-import { Notiflix } from 'notiflix/build/notiflix-notify-aio';
+/* constants/variables that will be referred to in the rest of the document.
+days, hours, minutes, and seconds are all going to need to have their values updated by the timer.
+They're written how they are because the .value indicates that we're referring to the amount written in, the brackets are used because it's not really the ID or class or anything that's otherwise announced in the HTML, it's just data-'___' and that requires special syntax.
+Start button we need to identify because we don't want the button to stay active the whole time,
+and we want to have an event listener on the start to help us control when the functions are deployed.
+button refers to its tag, but we get more specific with the [data-start] because what if 
+there were more than one button. The # in the selector for myInput is to indicate that we're referring to an ID.
+*/
+const daysEl = document.querySelector('.value[data-days]');
+const hoursEl = document.querySelector('.value[data-hours]');
+const minutesEl = document.querySelector('.value[data-minutes]');
+const secondsEl = document.querySelector('.value[data-seconds]');
+const startBtn = document.querySelector('button[data-start]');
+const myInput = document.querySelector('#datetime-picker');
 
-const startBtn = document.querySelector('[data-start]');
-const selectedDate = null;
-const currentDate = new Date();
+/* let is the variable declaration for when the variable will need to be changed later on.
+At page loading, we don't want the timer to be running--we only want to initiate the timer
+after the date is selected on the flatpickr, therefore we've set it to false.
+The startBtn is also going to be disabled until we select a valid date (how can you
+    start a timer if you don't know how long it's going to be for?).
+*/
 
-const flatt = flatpickr('#datetime-picker', {
+let timerIsStarted = false;
+startBtn.disabled = true;
+
+/* Here we are declaring our function for the flatpickr. The information for how to 
+create a flatpickr instance is available on the flatpickr documentation website.
+myInput represents the clickable textbox where you can enter the date, it's the
+beginning target of where the flatpickr is supposed to go.
+https://flatpickr.js.org/examples/ this website includes the explanations of the
+selected settings, time is enabled, we want to be able to choose any time AM or PM.
+minuteIncrement adjusts the step for the minut input.
+*/
+
+const fp = flatpickr(myInput, {
   enableTime: true,
   time_24hr: true,
   defaultDate: new Date(),
   minuteIncrement: 1,
-  minDate: currentDate,
+  /* selectedDates is a property from flatpickr which includes the array of dates selected by the user.
+  onClose is a method which will prompt the function to happen when the flatpickr is closed.
+  */
   onClose(selectedDates) {
-    console.log(selectedDates[0]);
-    if (selectedDate <= currentDate) {
-      return Notiflix.notify.failure('Please Select a Date in the Future');
+    /* dateDiff is going to calculate the difference between the date selected and the current one.
+    !!? I don't know why selectedDates has "[0]" next to it. !!?
+    */
+    const dateDiff = selectedDates[0].getTime() - new Date().getTime();
+    /* If the difference between the dates is greater than 0, and the timer is not started 
+    already then we know the date is in the future and this is a new instance for the timer.
+    The start button will be enabled, so the user can begin the timer, as they've selected a 
+    valid input. We are adding an event listener to the newly enabled start button so the
+    user may actually select the start button. We have an arrow function.
+    The timer is started for a duration equal to the difference between the selected time and the
+    current time. The timer status is changed to started, and the start button is disabled--
+    that prevents the user from restarting the timer excessively.
+This is also an else statement.
+    */
+
+    if (dateDiff > 0 && !timerIsStarted) {
+      startBtn.disabled = false;
+      startBtn.addEventListener('click', () => {
+        startTimer(dateDiff);
+        timerIsStarted = true;
+        startBtn.disabled = true;
+      });
+    } else {
+      /* If the date range entered is invalid (the difference between the date selected and
+        the current date is equal to or less than zero, or the timer has already been 
+        started) it is reinforced that the start button is set to disabled. */
+      startBtn.disabled = true;
+      /* if the timer is started, we use notiflix to notify the user of the message,
+        'Timer is started' which is coded as a string. 
+        
+        If the issue is not that the timer is started, it must be that the date selected was invalid
+        therefore we use an else statement to have notiflix notify the user that they should
+        select a future time. 
+        
+        ***If you are going to use flatpickr in the future, it is worth noting that you can simply
+        disable past dates. They display as grayed out, and the user cannot select them. It
+        visually cues the user that it is not an option which can decrease the number of clicks
+        to get the result and may improve the user experience.*** */
+      if (timerIsStarted) {
+        Notiflix.Notify.failure('Timer is started');
+      } else {
+        Notiflix.Notify.failure('Please choose the future time');
+      }
     }
   },
 });
-
-startBtn.addEventListener('click', dateMath);
-
-function dateMath() {}
-startBtn.addEventListener('click', convertMs);
+/* */
+function startTimer(milliseconds) {
+  let timerId = setInterval(() => {
+    if (milliseconds > 0) {
+      printTime(convertMs(milliseconds));
+      milliseconds -= 1000;
+    } else {
+      clearInterval(timerId);
+    }
+  }, 1000);
+}
 
 function convertMs(ms) {
   // Number of milliseconds per unit of time
@@ -44,11 +123,13 @@ function convertMs(ms) {
   return { days, hours, minutes, seconds };
 }
 
-console.log(convertMs(2000)); // {days: 0, hours: 0, minutes: 0, seconds: 2}
-console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
-console.log(convertMs(24140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
+function addLeadingZero(value) {
+  return value.toString().padStart(2, '0');
+}
 
-const daypost = document.querySelector('[data-days]');
-const hourpost = document.querySelector('[data-hours]');
-const minutepost = document.querySelector('[data-minutes]');
-const secondpost = document.querySelector('[data-seconds]');
+function printTime(t) {
+  daysEl.textContent = addLeadingZero(t.days);
+  hoursEl.textContent = addLeadingZero(t.hours);
+  minutesEl.textContent = addLeadingZero(t.minutes);
+  secondsEl.textContent = addLeadingZero(t.seconds);
+}
