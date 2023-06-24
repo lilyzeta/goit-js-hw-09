@@ -1,7 +1,6 @@
 // Described in documentation
-import flatpickr from "flatpickr";
+
 // Additional styles import
-import "flatpickr/dist/flatpickr.min.css";
 
 const options = {
   enableTime: true,
@@ -13,15 +12,15 @@ const options = {
   },
 };
 
-const startBtn = document.querySelector("[data-start]");
+const startBtn = document.querySelector('[data-start]');
 const selectedDate = null;
 const currentDate = new Date();
 
-startBtn.addEventListener("click", dateMath);
+startBtn.addEventListener('click', dateMath);
 
 function dateMath() {
   if (selectedDate <= currentDate) {
-    return Notiflix.Notiy.failure("Please Select a Date in the Future");
+    return Notiflix.Notiy.failure('Please Select a Date in the Future');
   }
 }
 
