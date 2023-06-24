@@ -1,28 +1,29 @@
-// Described in documentation
-
-// Additional styles import
-
-const options = {
-  enableTime: true,
-  time_24hr: true,
-  defaultDate: new Date(),
-  minuteIncrement: 1,
-  onClose(selectedDates) {
-    console.log(selectedDates[0]);
-  },
-};
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+import { Notiflix } from 'notiflix/build/notiflix-notify-aio';
 
 const startBtn = document.querySelector('[data-start]');
 const selectedDate = null;
 const currentDate = new Date();
 
+const flatt = flatpickr('#datetime-picker', {
+  enableTime: true,
+  time_24hr: true,
+  defaultDate: new Date(),
+  minuteIncrement: 1,
+  minDate: currentDate,
+  onClose(selectedDates) {
+    console.log(selectedDates[0]);
+    if (selectedDate <= currentDate) {
+      return Notiflix.notify.failure('Please Select a Date in the Future');
+    }
+  },
+});
+
 startBtn.addEventListener('click', dateMath);
 
-function dateMath() {
-  if (selectedDate <= currentDate) {
-    return Notiflix.Notiy.failure('Please Select a Date in the Future');
-  }
-}
+function dateMath() {}
+startBtn.addEventListener('click', convertMs);
 
 function convertMs(ms) {
   // Number of milliseconds per unit of time
@@ -46,3 +47,8 @@ function convertMs(ms) {
 console.log(convertMs(2000)); // {days: 0, hours: 0, minutes: 0, seconds: 2}
 console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
 console.log(convertMs(24140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
+
+const daypost = document.querySelector('[data-days]');
+const hourpost = document.querySelector('[data-hours]');
+const minutepost = document.querySelector('[data-minutes]');
+const secondpost = document.querySelector('[data-seconds]');
