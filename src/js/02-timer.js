@@ -92,7 +92,12 @@ This is also an else statement.
     }
   },
 });
-/* */
+/* we declare a function that will start the timer. The timer is set to update every one second.
+if the amount of milliseconds is greater than zero, we will call the functions printTime and convertMs (explained below).
+milliseconds is also adjusted down by 1000 because that equals one second.
+If milliseconds is equal to or somehow less than zero, the timer stops updating as the timer
+should also have hit zero.
+*/
 function startTimer(milliseconds) {
   let timerId = setInterval(() => {
     if (milliseconds > 0) {
@@ -103,14 +108,18 @@ function startTimer(milliseconds) {
     }
   }, 1000);
 }
-
+/* this function converts the amount of time listed into milliseconds so that the functions
+startTimer and setInterval can read it without any innaccuracies by a bad conversion. */
 function convertMs(ms) {
   // Number of milliseconds per unit of time
   const second = 1000;
   const minute = second * 60;
   const hour = minute * 60;
   const day = hour * 24;
-
+  /* The Math.floor() static method always rounds down and returns the largest 
+  integer less than or equal to a given number. Each of the constants below convert the input
+  quantity of milliseconds into numbers of days, hours, minutes, or seconds so we can display 
+  them*/
   // Remaining days
   const days = Math.floor(ms / day);
   // Remaining hours
@@ -123,10 +132,16 @@ function convertMs(ms) {
   return { days, hours, minutes, seconds };
 }
 
+/* this function converts the value to a string and if the string is not 2 characters, it
+adds a 0 to the start of the string. This is how we can display 04 minutes instead of 4 minutes. */
 function addLeadingZero(value) {
   return value.toString().padStart(2, '0');
 }
 
+/* textContent is the actual text inside the html that is displaying on the user interface.
+this function makes sure that the leading zero function is allowed to try to update the numbers
+if it's needed, and this function also updates the amounts to the html so we can see the work 
+done. */
 function printTime(t) {
   daysEl.textContent = addLeadingZero(t.days);
   hoursEl.textContent = addLeadingZero(t.hours);
